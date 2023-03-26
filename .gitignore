@@ -1,0 +1,8 @@
+pyproject.toml
+/setup.cfg
+/setup.py
+dist/
+src/etomyte.egg-info/
+.DS_Store
+.python-version
+src/etomyte/__pycache__/
