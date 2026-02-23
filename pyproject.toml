@@ -1,0 +1,20 @@
+[build-system]
+requires = ["setuptools>=70", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "etomyte"
+version = "0.1.0"
+description = "Etomyte – FastAPI-based CMS application server"
+requires-python = ">=3.10"
+dependencies = [
+    "fastapi>=0.132.0",
+    "uvicorn[standard]>=0.29.0",
+    "markdown>=3.6",
+]
+
+[project.scripts]
+etomyte = "etomyte.__main__:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
