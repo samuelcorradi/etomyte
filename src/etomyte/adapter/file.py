@@ -32,15 +32,19 @@ class FileAdapter(AdapterBase):
         """
         Retrieve content for the given path.
         """
+        ext = '.md'
         path = path.strip("/") or "index"
         path = Path("contents") / path.lstrip("/")
-        return self.__read_file(str(path))
+        filepath = path.with_suffix(ext)
+        return self.__read_file(str(filepath))
 
     def get_template(self, path:str)->str:
         """
         Implement file-based template retrieval.
         """
+        ext = '.md'
         path = path.strip("/") \
             or self.app.config.get("DEFAULT_TEMPLATE", "index")
         path = Path("templates") / path.lstrip("/")
-        return self.__read_file(str(path))
+        filepath = path.with_suffix(ext)
+        return self.__read_file(str(filepath))
