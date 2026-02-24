@@ -1,6 +1,6 @@
 from pathlib import Path
 from etomyte.core.cms import AdapterBase
-from git_repo.src.etomyte.core.server import App
+from git_repo.src.etomyte.core.app import Server
 
 class FileAdapter(AdapterBase):
     def __init__(self, app:App):
