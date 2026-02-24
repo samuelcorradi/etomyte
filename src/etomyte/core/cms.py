@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+import re
 from etomyte.core.server import App
 from etomyte.core.exception import TemplateNotFoundError, ContentNotFoundError
 
@@ -7,6 +8,13 @@ class AdapterBase(ABC):
     def __init__(self
         , app:App):
         self.app = app
+
+    @abstractmethod
+    def get_snippet(self, path:str)->str:
+        """
+        Retrieve snippet for the given path.
+        """
+        pass
 
     @abstractmethod
     def get_content(self, path:str)->str:
@@ -28,6 +36,41 @@ class CMS():
         , adapter:AdapterBase):
         self.app = app
         self.adapter = adapter
+
+    def exec_snippet(self, code:str, params:dict)->str:
+        """
+        """
+        local_vars = {**params, "app": self.app}
+        exec(code, {}, local_vars)
+        return local_vars.get("result")
+    
+    def process_snippets(self, text:str) -> str:
+        """
+        """
+        pattern = re.compile(r"\[\[([^\]]+)\]\]")
+        def _replace(match: re.Match)->str:
+            full = match.group(1).strip()
+            name, params = full, {}
+            if "?" in full:
+                name, param_str = full.split("?", 1)
+                params = {
+                    k: v
+                    for part in param_str.split(",")
+                    if "=" in part
+                    for k, v in [part.split("=", 1)]
+                }
+            code = self.get_snippet(name)
+            result = self.exec_snippet(code, params)
+            if result is None:
+                result = match.group(0)
+            return result
+        return pattern.sub(_replace, text)
+
+    def get_snippet(self, name:str)->str:
+        code = self.adapter.get_snippet(name)
+        if code is None:
+            raise ContentNotFoundError(f"Snippet not found for name: {name}")
+        return code
 
     def get_content(self, path:str)->str:
         ctn = self.adapter.get_content(path)

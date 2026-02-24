@@ -13,14 +13,20 @@ class FileAdapter(AdapterBase):
         Look for base_dir / rel_path + ext for each ext in order.
         """
         candidate = self.base_path / (path.strip("/"))
-        ext = '.md'
-        filepath = candidate.with_suffix(ext)
-        print(f"Looking for file: {filepath}")
         try:
-            with open(filepath, "r", encoding="utf-8") as f:
+            with open(candidate, "r", encoding="utf-8") as f:
                 return f.read()
         except Exception:
             return None
+
+    def get_snippet(self, name:str)->str:
+        """
+        Retrieve snippet code for the given name.
+        """
+        ext = '.py'
+        path = Path("snippets") / (name.strip("/").split("/")[0])
+        filepath = path.with_suffix(ext)
+        return self.__read_file(str(filepath))
 
     def get_content(self, path:str)->str:
         """

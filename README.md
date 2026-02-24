@@ -112,6 +112,8 @@ Podemos passar parametros para a execução do snippet, de forma que ele pode te
 
 `[[meu_snippet?parametro1=valor1,parametro2=valor2,...]]`.
 
+O resultado da execução do snippet deve ser armazenado obrigatóriamente em uma variável chamada `result`. É essa variável do snippet que terá seu conteúdo recuperado e adicionado no local da marcação original que chamou o snippet. 
+
 Podemos ver a marcação ``{{content}}` (que carrega o conteúdo nos templates) como um snippet embutido no sistema.
 
 # Execução
