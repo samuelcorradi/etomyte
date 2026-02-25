@@ -5,10 +5,6 @@ from etomyte.core.exception import TemplateNotFoundError, ContentNotFoundError
 
 class AdapterBase(ABC):
 
-    def __init__(self
-        , app:App):
-        self.app = app
-
     @abstractmethod
     def get_snippet(self, path:str)->str:
         """
