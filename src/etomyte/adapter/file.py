@@ -1,11 +1,9 @@
 from pathlib import Path
 from etomyte.core.cms import AdapterBase
-from git_repo.src.etomyte.core.app import Server
 
 class FileAdapter(AdapterBase):
-    def __init__(self, app:App):
-        self.app = app
-        base_path = Path(app.config.get("BASE_PATH", ".")).resolve()
+    def __init__(self, home:str):
+        base_path = Path(home).resolve()
         self.base_path = base_path
 
     def __read_file(self, path:str)->str:
@@ -43,8 +41,7 @@ class FileAdapter(AdapterBase):
         Implement file-based template retrieval.
         """
         ext = '.md'
-        path = path.strip("/") \
-            or self.app.config.get("DEFAULT_TEMPLATE", "index")
+        path = path.strip("/") or "index"
         path = Path("templates") / path.lstrip("/")
         filepath = path.with_suffix(ext)
         return self.__read_file(str(filepath))
