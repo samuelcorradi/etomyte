@@ -28,15 +28,17 @@ class AdapterBase(ABC):
 
 class CMS():
     def __init__(self
-        , app:App
-        , adapter:AdapterBase):
-        self.app = app
+        , adapter:AdapterBase
+        , default_template:str="index"):
         self.adapter = adapter
+        self.default_template = default_template
 
-    def exec_snippet(self, code:str, params:dict)->str:
+    def exec_snippet(self
+        , code:str
+        , params:dict)->str:
         """
         """
-        local_vars = {**params, "app": self.app}
+        local_vars = params
         exec(code, {}, local_vars)
         return local_vars.get("result")
     
@@ -74,14 +76,15 @@ class CMS():
             raise ContentNotFoundError(f"Content not found for path: {path}")
         return ctn
             
-    def get_template(self, path:str)->str:
-        path = path.strip("/") or "index"
-        print(f"Looking for template: {path}")
+    def get_template(self, path:str=None)->str:
+        if path is None:
+            path = self.default_template
+        path = path.strip("/")
         try:
             tpl = self.adapter.get_template(path)
             if tpl is None:
-                if path == "index":
-                    return "Index template"
+                if not path:
+                    return '{{content}}'
                 raise TemplateNotFoundError(f"Template not found for path: {path}")
             return tpl
         except TemplateNotFoundError:
