@@ -87,15 +87,14 @@ def run_server(project_path:str) -> None:
     :param project_path: Path to the Etomyte project directory.
     """
     import uvicorn
-    from etomyte.server import create_app
-    project_dir = Path(project_path).resolve()
-    app = create_app(str(project_dir))
-    config_mod = _load_config(project_dir / "config" / "config.py")
-    host = getattr(config_mod, "HOST", "127.0.0.1")
-    port = getattr(config_mod, "PORT", 8000)
-    print(f"Starting Etomyte server  →  http://{host}:{port}")
-    print(f"Project path: {project_dir}")
-    uvicorn.run(app, host=host, port=port)
+    from etomyte import app as app_factory
+    app = app_factory(project_path)
+    # config_mod = _load_config(project_dir / "config" / "config.py")
+    # host = getattr(config_mod, "HOST", "127.0.0.1")
+    # port = getattr(config_mod, "PORT", 8000)
+    # print(f"Starting Etomyte server  →  http://{host}:{port}")
+    # print(f"Project path: {project_dir}")
+    uvicorn.run(app.server.app, host="127.0.0.1", port=app.port)
 
 def main() -> None:
     args = sys.argv[1:]
