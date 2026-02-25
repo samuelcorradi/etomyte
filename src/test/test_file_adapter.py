@@ -1,6 +1,6 @@
 import pytest
 from etomyte.core.cms import CMS
-from git_repo.src.etomyte.core.app import Server
+from git_repo.src.etomyte.core.server import Server
 from etomyte.adapter.file import FileAdapter
 
 def test_get_template():

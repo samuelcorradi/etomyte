@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 import re
-from git_repo.src.etomyte.core.app import Server
+from etomyte.core.server import Server
 from etomyte.core.exception import TemplateNotFoundError, ContentNotFoundError
 
 class AdapterBase(ABC):
