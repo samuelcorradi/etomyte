@@ -30,9 +30,21 @@ class Etomyte:
         if not adapter:
             adapter = FileAdapter(home=home)
         self.cms = CMS(adapter, default_template)
-        self.server.load_routes(routes_path)
-        self.__config_route()
-        
+    @staticmethod
+    def __load_module(filepath:Path, module_name:str):
+        """
+        Dynamically load a Python module from a file path.
+        """
+        spec = importlib.util.spec_from_file_location(module_name, filepath)
+        if spec is None:
+            return None
+        mod = importlib.util.module_from_spec(spec)
+        try:
+            spec.loader.exec_module(mod)
+        except Exception as exc: # noqa: BLE001
+            print(f"[etomyte] Warning: could not load {filepath}: {exc}")
+            return None
+        return mod
     def __config_route(self):
         # catch-all handler
         @self.server.app.get("/{full_path:path}", response_class=HTMLResponse)
