@@ -45,6 +45,25 @@ class Etomyte:
             print(f"[etomyte] Warning: could not load {filepath}: {exc}")
             return None
         return mod
+
+    def load_config(self, config_file:str)->dict:
+        # load project config
+        if not config_file.exists():
+            raise FileNotFoundError(f"Config file not found: {config_file}")
+        config_mod = Etomyte.__load_module(config_file, "_etomyte_config")
+        host = getattr(config_mod, "HOST", None)
+        port = getattr(config_mod, "PORT", None)
+        default_template = getattr(config_mod, "DEFAULT_TEMPLATE", None)
+        content_extensions = getattr(config_mod, "CONTENT_EXTENSIONS", None)
+        template_extensions = getattr(config_mod, "TEMPLATE_EXTENSIONS", None)
+        return {
+            "HOST": host,
+            "PORT": port,
+            "DEFAULT_TEMPLATE": default_template,
+            "CONTENT_EXTENSIONS": content_extensions,
+            "TEMPLATE_EXTENSIONS": template_extensions
+        }
+
     def __config_route(self):
         # catch-all handler
         @self.server.app.get("/{full_path:path}", response_class=HTMLResponse)
