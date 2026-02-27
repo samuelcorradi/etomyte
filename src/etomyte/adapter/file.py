@@ -5,6 +5,9 @@ class FileAdapter(AdapterBase):
     def __init__(self, home:str):
         base_path = Path(home).resolve()
         self.base_path = base_path
+        self.templates_dir = base_path/"templates"
+        self.contents_dir = base_path/"contents"
+        self.snippets_dir = base_path/"snippets"
 
     def __read_file(self, path:str)->str:
         """
@@ -22,7 +25,7 @@ class FileAdapter(AdapterBase):
         Retrieve snippet code for the given name.
         """
         ext = '.py'
-        path = Path("snippets") / (name.strip("/").split("/")[0])
+        path = self.snippets_dir / (name.strip("/").split("/")[0])
         filepath = path.with_suffix(ext)
         return self.__read_file(str(filepath))
 
@@ -32,8 +35,9 @@ class FileAdapter(AdapterBase):
         """
         ext = '.md'
         path = path.strip("/") or "index"
-        path = Path("contents") / path.lstrip("/")
+        path = self.contents_dir / path.lstrip("/")
         filepath = path.with_suffix(ext)
+        print(str(filepath))
         return self.__read_file(str(filepath))
 
     def get_template(self, path:str)->str:
@@ -42,6 +46,6 @@ class FileAdapter(AdapterBase):
         """
         ext = '.md'
         path = path.strip("/") or "index"
-        path = Path("templates") / path.lstrip("/")
+        path = self.templates_dir / path.lstrip("/")
         filepath = path.with_suffix(ext)
         return self.__read_file(str(filepath))
