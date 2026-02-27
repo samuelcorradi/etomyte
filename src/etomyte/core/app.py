@@ -1,4 +1,6 @@
+from __future__ import annotations
 from pathlib import Path
+import importlib.util
 from fastapi import Request
 from typing import Optional
 from fastapi.responses import HTMLResponse
@@ -15,21 +17,27 @@ class Etomyte:
     def __init__(self
         , home:str=None
         , adapter=None
-        , default_template:str=None
+        , default_template:str='index'
+        , host:str='127.0.0.1'
         , port:int=8000):
         self.home = home
-        self.port = port
-        self.server = Server(port=port)
-
         home = Path(home).resolve()
-        self.templates_dir = home / "templates"
-        self.contents_dir  = home / "contents"
-        self.snippets_dir  = home / "snippets"
+        # load config
         config_file = home/"config"/"config.py"
+        conf = self.load_config(config_file)
+        # instance config
+        self.port = conf.get("PORT", port)
+        self.host = conf.get("HOST", host)
+        self.default_template = conf.get("DEFAULT_TEMPLATE", default_template)
+        self.server = Server(port=self.port)
+        # routes
         routes_path = home/"config"/"routes.py"
+        self.server.load_routes(routes_path)
+        # cms
         if not adapter:
-            adapter = FileAdapter(home=home)
+            adapter = FileAdapter(home=self.home)
         self.cms = CMS(adapter, default_template)
+
     @staticmethod
     def __load_module(filepath:Path, module_name:str):
         """
