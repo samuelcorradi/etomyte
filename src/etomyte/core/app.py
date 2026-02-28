@@ -5,7 +5,7 @@ from fastapi import Request
 from typing import Optional
 from fastapi.responses import HTMLResponse
 from etomyte.core.server import Server
-from etomyte.core.cms import CMS
+from etomyte.core.cms import CMS, AdapterBase
 from etomyte.adapter.file import FileAdapter
 
 class Etomyte:
@@ -16,27 +16,33 @@ class Etomyte:
     """
     def __init__(self
         , home:str=None
-        , adapter=None
-        , default_template:str='index'
-        , host:str='127.0.0.1'
-        , port:int=8000):
+        , adapter:Optional[AdapterBase]=None
+        , host:str=None
+        , port:int=None
+        , default_template:str=None):
+        """
+        :param home: Diretório raiz do projeto Etomyte.
+        :param adapter: Adapter para acesso a ficheiros de conteúdo e templates.
+        :param host: Host para o servidor FastAPI.
+        :param port: Porta para o servidor FastAPI.
+        :param default_template: Template padrão para renderizar conteúdos.
+        """
         self.home = home
         home = Path(home).resolve()
         # load config
         config_file = home/"config"/"config.py"
         conf = self.load_config(config_file)
         # instance config
-        self.port = conf.get("PORT", port)
-        self.host = conf.get("HOST", host)
-        self.default_template = conf.get("DEFAULT_TEMPLATE", default_template)
-        self.server = Server(port=self.port)
+        _host = host or conf.get("HOST", '127.0.0.1')
+        _port = port or conf.get("PORT", 8000)
+        self.server = Server(host=_host, port=_port)
         # routes
         routes_path = home/"config"/"routes.py"
-        self.server.load_routes(routes_path)
+        self.__load_routes(str(routes_path))
         # cms
-        if not adapter:
-            adapter = FileAdapter(home=self.home)
-        self.cms = CMS(adapter, default_template)
+        _adapter = adapter or FileAdapter(home=self.home)
+        _default_template = default_template or conf.get("DEFAULT_TEMPLATE", "index")
+        self.cms = CMS(_adapter, _default_template)
 
     @staticmethod
     def __load_module(filepath:Path, module_name:str):
@@ -71,6 +77,59 @@ class Etomyte:
             "CONTENT_EXTENSIONS": content_extensions,
             "TEMPLATE_EXTENSIONS": template_extensions
         }
+    
+    def __load_routes(self, routes_path:str) -> None:
+        """
+        Carrega dinamicamente um ficheiro routes.py
+        e aplica as rotas à instância FastAPI.
+        O ficheiro deve usar o decorador `@route`
+        do Etomyte:
+        ```python
+        from etomyte.core import route
+        @route("GET", "/hello")
+        async def hello():
+            return {"message": "Hello!"}
+        ```
+        :param routes_path: Caminho absoluto ou relativo para o ficheiro routes.py.
+        :raises FileNotFoundError: Se o ficheiro não existir.
+        """
+        filepath = Path(routes_path).resolve()
+        if not filepath.is_file():
+            raise FileNotFoundError(f"Routes file not found: {filepath}")
+        # 
+        spec = importlib.util.spec_from_file_location("_etomyte_routes", filepath)
+        if spec is None or spec.loader is None:
+            raise ImportError(f"Cannot create module spec for: {filepath}")
+        #
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        #
+        from etomyte.core.route import get_marked_routes
+        marked = get_marked_routes(mod)
+        if not marked:
+            print(
+                f"[etomyte] Warning: {filepath} does not expose any "
+                f"@route handlers — no routes were loaded."
+            )
+            return
+        #
+        _method_map = {
+            "GET": self.app.get,
+            "POST": self.app.post,
+            "PUT": self.app.put,
+            "DELETE": self.app.delete,
+            "PATCH": self.app.patch,
+            "OPTIONS": self.app.options,
+            "HEAD": self.app.head,
+        }
+        for info, handler in marked:
+            method = info["method"]
+            path = info["path"]
+            registrar = _method_map.get(method)
+            if registrar is None:
+                self.server.app.api_route(path, methods=[method])(handler)
+            else:
+                registrar(path)(handler)
 
     def __config_route(self):
         # catch-all handler

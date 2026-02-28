@@ -13,7 +13,7 @@ async def create_data(body: dict):
 O decorador NÃO depende do FastAPI
 — limita-se a anotar a função com
 metadados (_etomyte_route).
-É o Server.load_routes() que lê essas
+É o Etomyte.load_routes() que lê essas
 anotações e as converte para rotas do
 framework subjacente.
 """
