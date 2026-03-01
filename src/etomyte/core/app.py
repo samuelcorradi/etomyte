@@ -114,13 +114,13 @@ class Etomyte:
             return
         #
         _method_map = {
-            "GET": self.app.get,
-            "POST": self.app.post,
-            "PUT": self.app.put,
-            "DELETE": self.app.delete,
-            "PATCH": self.app.patch,
-            "OPTIONS": self.app.options,
-            "HEAD": self.app.head,
+            "GET": self.server.app.get,
+            "POST": self.server.app.post,
+            "PUT": self.server.app.put,
+            "DELETE": self.server.app.delete,
+            "PATCH": self.server.app.patch,
+            "OPTIONS": self.server.app.options,
+            "HEAD": self.server.app.head,
         }
         for info, handler in marked:
             method = info["method"]
