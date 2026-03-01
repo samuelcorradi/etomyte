@@ -1,3 +1,6 @@
 etomyte.egg-info
 __pycache__
 *.pyc
+*.code-workspace
+.vscode
+.venv
