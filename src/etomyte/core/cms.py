@@ -1,6 +1,5 @@
 from abc import ABC, abstractmethod
 import re
-from etomyte.core.server import Server
 from etomyte.core.exception import TemplateNotFoundError, ContentNotFoundError
 
 class AdapterBase(ABC):
@@ -72,8 +71,6 @@ class CMS():
 
     def get_content(self, path:str)->str:
         ctn = self.adapter.get_content(path)
-        if ctn is None:
-            raise ContentNotFoundError(f"Content not found for path: {path}")
         return ctn
             
     def get_template(self, path:str=None)->str:
