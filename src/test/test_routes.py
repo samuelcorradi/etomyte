@@ -1,10 +1,10 @@
+from etomyte.core.app import Etomyte
 import pytest
 from git_repo.src.etomyte.core.server import Server
 from etomyte.core.route import route, get_marked_routes, _ROUTE_ATTR
+from test.conftest import ETOMYTE_HOME
 
-PROJECT_PATH = "C:\\Users\\samue\\OneDrive - Nortegra\\workspace\\etomyte\\projectX"
-
-ROUTES_FILE = PROJECT_PATH + "\\config\\routes.py"
+ROUTES_FILE = ETOMYTE_HOME + "\\config\\routes.py"
 
 def test_route_decorator_marks_function():
     """O decorador deve adicionar o atributo _etomyte_route à função."""
@@ -61,44 +61,40 @@ def test_get_marked_routes_from_module():
     methods = {info["method"] for info, _ in marked}
     assert methods == {"GET", "DELETE"}
 
-def test_load_routes_registers_routes():
+def test_load_routes_registers_routes(app):
     """
     load_routes deve registar as rotas do
     routes.py na instância FastAPI.
     """
-    server = Server(port=8000)
-    server.load_routes(ROUTES_FILE)
-    paths = {r.path for r in server.app.routes}
+    app.load_routes(ROUTES_FILE)
+    paths = {r.path for r in app.server.app.routes}
     assert "/hello" in paths
     assert "/data" in paths
 
-def test_load_routes_correct_methods():
+def test_load_routes_correct_methods(app):
     """
     As rotas registadas devem ter os métodos
     HTTP corretos.
     """
-    server = Server(port=8000)
-    server.load_routes(ROUTES_FILE)
-    route_map = {r.path: r.methods for r in server.app.routes if hasattr(r, "methods")}
+    app.load_routes(ROUTES_FILE)
+    route_map = {r.path: r.methods for r in app.server.app.routes if hasattr(r, "methods")}
     assert "GET" in route_map["/hello"]
     assert "POST" in route_map["/data"]
 
-def test_load_routes_file_not_found():
+def test_load_routes_file_not_found(app):
     """
     load_routes deve lançar FileNotFoundError
     se o ficheiro não existir.
     """
-    server = Server(port=8000)
     with pytest.raises(FileNotFoundError):
-        server.load_routes("/caminho/inexistente/routes.py")
+        app.load_routes("/caminho/inexistente/routes.py")
 
-def test_load_routes_no_handlers(tmp_path):
+def test_load_routes_no_handlers(app,tmp_path):
     """
     load_routes deve imprimir aviso se routes.py
     não tiver @route handlers.
     """
     empty_routes = tmp_path / "routes.py"
     empty_routes.write_text("# ficheiro vazio\nx = 1\n", encoding="utf-8")
-    server = Server(port=8000)
     # não deve lançar exceção, apenas aviso
-    server.load_routes(str(empty_routes))
+    app.load_routes(str(empty_routes))

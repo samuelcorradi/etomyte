@@ -1,11 +1,11 @@
 import pytest
-from etomyte.core.cms import CMS
-from git_repo.src.etomyte.core.server import Server
-from etomyte.adapter.file import FileAdapter
 
-def test_get_template():
-    home = "C:\\Users\\samue\\OneDrive - Nortegra\\workspace\\etomyte\\projectX"
-    cms = CMS(adapter=FileAdapter(home))
+def test_get_template(cms):
     assert cms.get_template("/product/cars/MyCar") == "About cars template"
+
+def test_get_template_fallback(cms):
     result = cms.get_template("/product/cars")
-    assert result == "Index template"
+    assert result == """Template index.md content
+
+{{content}}
+"""
