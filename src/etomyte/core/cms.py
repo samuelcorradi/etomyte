@@ -78,12 +78,14 @@ class CMS():
             
     def get_template(self, path:str=None)->str:
         if path is None:
-            path = self.default_template
+            path = "/"
         path = path.strip("/")
+        if not path:
+            path = self.default_template
         try:
             tpl = self.adapter.get_template(path)
             if tpl is None:
-                if not path:
+                if path==self.default_template:
                     return '{{content}}'
                 raise TemplateNotFoundError(f"Template not found for path: {path}")
             return tpl
