@@ -13,7 +13,9 @@ class FileAdapter(AdapterBase):
         """
         Look for base_dir / rel_path + ext for each ext in order.
         """
-        candidate = self.base_path / (path.strip("/"))
+        candidate = Path(path)
+        if not candidate.is_absolute():
+            candidate = self.base_path/path.strip("/")
         try:
             with open(candidate, "r", encoding="utf-8") as f:
                 return f.read()
@@ -25,7 +27,7 @@ class FileAdapter(AdapterBase):
         Retrieve snippet code for the given name.
         """
         ext = '.py'
-        path = self.snippets_dir / (name.strip("/").split("/")[0])
+        path = self.snippets_dir/(name.strip("/").split("/")[0])
         filepath = path.with_suffix(ext)
         return self.__read_file(str(filepath))
 
@@ -37,8 +39,8 @@ class FileAdapter(AdapterBase):
         path = path.strip("/") or "index"
         path = self.contents_dir / path.lstrip("/")
         filepath = path.with_suffix(ext)
-        print(str(filepath))
-        return self.__read_file(str(filepath))
+        result = self.__read_file(str(filepath))
+        return result
 
     def get_template(self, path:str)->str:
         """
