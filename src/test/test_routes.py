@@ -1,10 +1,6 @@
-from etomyte.core.app import Etomyte
 import pytest
-from git_repo.src.etomyte.core.server import Server
+from pathlib import Path
 from etomyte.core.route import route, get_marked_routes, _ROUTE_ATTR
-from test.conftest import ETOMYTE_HOME
-
-ROUTES_FILE = ETOMYTE_HOME + "\\config\\routes.py"
 
 def test_route_decorator_marks_function():
     """O decorador deve adicionar o atributo _etomyte_route à função."""
@@ -61,22 +57,24 @@ def test_get_marked_routes_from_module():
     methods = {info["method"] for info, _ in marked}
     assert methods == {"GET", "DELETE"}
 
-def test_load_routes_registers_routes(app):
+def test_load_routes_registers_routes(app, home):
     """
     load_routes deve registar as rotas do
     routes.py na instância FastAPI.
     """
-    app.load_routes(ROUTES_FILE)
+    routes_file = Path(home)/"config"/"routes.py"
+    app.load_routes(str(routes_file))
     paths = {r.path for r in app.server.app.routes}
     assert "/hello" in paths
     assert "/data" in paths
 
-def test_load_routes_correct_methods(app):
+def test_load_routes_correct_methods(home, app):
     """
     As rotas registadas devem ter os métodos
     HTTP corretos.
     """
-    app.load_routes(ROUTES_FILE)
+    routes_file = Path(home)/"config"/"routes.py"
+    app.load_routes(str(routes_file))
     route_map = {r.path: r.methods for r in app.server.app.routes if hasattr(r, "methods")}
     assert "GET" in route_map["/hello"]
     assert "POST" in route_map["/data"]
