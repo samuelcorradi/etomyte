@@ -9,16 +9,16 @@ def create_project(name:str) -> None:
     """
     base = Path(name)
     dirs = [
-        base / "config",
-        base / "contents",
-        base / "snippets",
-        base / "templates",
+        base/"config",
+        base/"contents",
+        base/"snippets",
+        base/"templates",
     ]
     for d in dirs:
         d.mkdir(parents=True, exist_ok=True)
         print(f"  Created: {d}")
     # minimal config files
-    config_py = base / "config" / "config.py"
+    config_py = base/"config"/"config.py"
     text = """# project configuration
 HOST = "127.0.0.1"
 PORT = 8000
@@ -28,17 +28,19 @@ DEFAULT_TEMPLATE = "index"
 """
     config_py.write_text(text, encoding="utf-8")
     # routes.py with example route
-    routes_py = base / "config" / "routes.py"
-    text = """################################################
-# Define custom FastAPI routes here.
-# You can use either an APIRouter (recommended)
-# or a setup(app) function.
-################################################\n
-# from fastapi import APIRouter
-# router = APIRouter()
-# @router.get("/hello")
-# async def hello():
-#     return {"message": "Hello from Etomyte!"}
+    routes_py = base/"config"/"routes.py"
+    text = """####################################################
+# Define API routes here using the @route decorator
+####################################################
+from etomyte.core.route import route
+
+@route("GET", "/hello")
+async def hello():
+    return {"message": "hello"}
+
+@route("POST", "/data")
+async def data():
+    return {"ok": True}
 """
     routes_py.write_text(text, encoding="utf-8")
     # default root template
@@ -54,15 +56,15 @@ DEFAULT_TEMPLATE = "index"
 </body>
 </html>
 """
-    (base / "templates" / "index.html").write_text(text, encoding="utf-8")
+    (base/"templates"/"index.md").write_text(text, encoding="utf-8")
     # default 404 content
     text = """
 <h1>404 &mdash; Page not found</h1>
 <p>The page you requested could not be found.</p>
 """
-    (base / "contents" / "404.html").write_text(text, encoding="utf-8")
+    (base/"contents"/"404.md").write_text(text, encoding="utf-8")
     print(f"\nProject '{name}' created successfully.")
-    print(f"Run it with:  python -m etomyte run \"{base.resolve()}\"")
+    print(f"Run it with: python -m etomyte run \"{base.resolve()}\"")
 
 def _load_config(config_file: Path) -> object:
     """
