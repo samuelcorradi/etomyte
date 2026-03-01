@@ -43,8 +43,8 @@ def home():
     """
     Caminho base do projeto de teste (ETOMYTE_HOME).
     """
-    BASE_DIR = Path(__file__).resolve().parent.parent.parent
-    project_home = BASE_DIR / ".local" / "sample_project"
+    BASE_DIR = Path(__file__).resolve().parent
+    project_home = BASE_DIR/"sample_project"
     _ensure_sample_project(project_home)
     ETOMYTE_HOME = str(project_home)
     return ETOMYTE_HOME
