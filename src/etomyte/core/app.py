@@ -39,6 +39,7 @@ class Etomyte:
         # routes
         routes_path = home/"config"/"routes.py"
         self.load_routes(str(routes_path))
+        self.__config_route()
         # cms
         _adapter = adapter or FileAdapter(home=self.home)
         _default_template = default_template or conf.get("DEFAULT_TEMPLATE", "index")
@@ -137,27 +138,18 @@ class Etomyte:
         async def cms_handler(request: Request, full_path: str) -> HTMLResponse:
             request_path = "/" + full_path  # e.g. "/produtos/carros/modeloX"
             # content (exact match)
-            content_html = ""
+            content = ""
             status_code  = 200
-            if self.contents_dir.is_dir():
-                content_file = self.cms.get_content(request_path)
-                if content_file is None:
-                    status_code = 404
-                    # try 404 content, fallback to built-in message
-                    error_file = self.cms.get_content("/404")
-                    if error_file:
-                        #content_html = _render_file(error_file)
-                        content_html = self.cms.process_snippets(error_file)
-                    else:
-                        content_html = "<h1>404 &mdash; Page not found</h1>"
-                else:
-                    # content_html = _render_file(content_file)
-                    content_html = self.cms.process_snippets(content_file)
+            content = self.cms.get_content(request_path)
+            if content is None:
+                status_code = 404
+                # try 404 content, fallback to built-in message
+                content = self.cms.get_content("/404")
+                if not content:
+                    content = "<h1>404 &mdash; Page not found</h1>"
+            content = self.cms.process_snippets(content)
             # template (hierarchical lookup)
-            template_html = "{{content}}"
-            template_file: Optional[Path] = None
-            if self.templates_dir.is_dir():
-                template_file = self.cms.get_template(request_path)
-                template_html = self.cms.process_snippets(template_file)
-            html = template_html.replace("{{content}}", content_html)
-            return HTMLResponse(content=html, status_code=status_code)
+            template = self.cms.get_template(request_path)
+            template = self.cms.process_snippets(template)
+            result = template.replace("{{content}}", content)
+            return HTMLResponse(content=result, status_code=status_code)
