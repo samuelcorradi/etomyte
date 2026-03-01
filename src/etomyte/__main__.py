@@ -21,13 +21,11 @@ def create_project(name:str) -> None:
     config_py = base / "config" / "config.py"
     text = """# project configuration
 HOST = "127.0.0.1"
-PORT = 8000\n
+PORT = 8000
+
 # name of the root/default template (without extension)
-"DEFAULT_TEMPLATE = "index"\n
-# supported extensions (order determines priority)
-CONTENT_EXTENSIONS = [".html", ".md"]
-TEMPLATE_EXTENSIONS = [".html", ".md"]
-'"""
+DEFAULT_TEMPLATE = "index"
+"""
     config_py.write_text(text, encoding="utf-8")
     # routes.py with example route
     routes_py = base / "config" / "routes.py"
