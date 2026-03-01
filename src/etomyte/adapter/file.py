@@ -45,7 +45,6 @@ class FileAdapter(AdapterBase):
         Implement file-based template retrieval.
         """
         ext = '.md'
-        path = path.strip("/") or "index"
-        path = self.templates_dir / path.lstrip("/")
+        path = self.templates_dir / path.strip("/")
         filepath = path.with_suffix(ext)
         return self.__read_file(str(filepath))
