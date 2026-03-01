@@ -38,7 +38,7 @@ class Etomyte:
         self.server = Server(host=_host, port=_port)
         # routes
         routes_path = home/"config"/"routes.py"
-        self.__load_routes(str(routes_path))
+        self.load_routes(str(routes_path))
         # cms
         _adapter = adapter or FileAdapter(home=self.home)
         _default_template = default_template or conf.get("DEFAULT_TEMPLATE", "index")
@@ -78,7 +78,7 @@ class Etomyte:
             "TEMPLATE_EXTENSIONS": template_extensions
         }
     
-    def __load_routes(self, routes_path:str) -> None:
+    def load_routes(self, routes_path:str) -> None:
         """
         Carrega dinamicamente um ficheiro routes.py
         e aplica as rotas à instância FastAPI.
