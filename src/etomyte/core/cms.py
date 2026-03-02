@@ -5,6 +5,16 @@ from etomyte.core.exception import TemplateNotFoundError, ContentNotFoundError
 class AdapterBase(ABC):
 
     @abstractmethod
+    @staticmethod
+    def create_project(self
+        , name:str)->None:
+        """
+        Create a new Etomyte project directory structure.
+        :param name: Name of the project (also the directory name).
+        """
+        pass
+
+    @abstractmethod
     def get_snippet(self, path:str)->str:
         """
         Retrieve snippet for the given path.
