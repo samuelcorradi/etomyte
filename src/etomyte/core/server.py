@@ -10,4 +10,8 @@ class Server():
         self.host = host
         self.port = port
         self.app = FastAPI(title="Etomyte", description="Etomyte CMS server")
-      
+    
+    def run(self):
+        import uvicorn
+        print(f"Starting Etomyte server  →  http://{self.host}:{self.port}")
+        uvicorn.run(app=self.app, host=self.host, port=self.port)

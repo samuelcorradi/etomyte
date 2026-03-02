@@ -86,13 +86,10 @@ def run_server(project_path:str) -> None:
     Start the Etomyte server for the given project path.
     :param project_path: Path to the Etomyte project directory.
     """
-    import uvicorn
     from etomyte import app as app_factory
     app = app_factory(project_path)
     server = app.server
-    print(f"Starting Etomyte server  →  http://{server.host}:{server.port}")
-    print(f"Project path: {Path(project_path).resolve()}")
-    uvicorn.run(app=server.app, host=server.host, port=server.port)
+    server.run()
 
 def main() -> None:
     args = sys.argv[1:]
