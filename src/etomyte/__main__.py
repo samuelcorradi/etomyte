@@ -1,6 +1,4 @@
 import sys
-import importlib.util
-from pathlib import Path
 
 def create_project(name:str, adapter_name:str=None) -> None:
     """
@@ -16,21 +14,6 @@ def create_project(name:str, adapter_name:str=None) -> None:
     else:
         print(f"Error: Unsupported adapter '{adapter_name}'.")
         sys.exit(1)
-
-def _load_config(config_file: Path) -> object:
-    """
-    Load a Python config module from file path, or return None.
-    :param config_file: Path to the config.py file.
-    :return: The loaded module object, or None if not found or failed.
-    """
-    if not config_file.exists():
-        return None
-    spec = importlib.util.spec_from_file_location("_etomyte_project_config", config_file)
-    if spec is None:
-        return None
-    mod = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(mod)
-    return mod
 
 def run_server(project_path:str) -> None:
     """
